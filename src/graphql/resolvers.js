@@ -19,9 +19,16 @@ const rootResolver = {
     if (!context.user || context.user.role !== 'admin') {
       throw new Error('No autorizado');
     }
-    return await Order.find()
+    const orders = await Order.find()
       .populate('user', 'username')
       .sort({ createdAt: -1 });
+    
+    // Asegurar que las fechas se devuelvan correctamente
+    return orders.map(order => ({
+      ...order._doc,
+      id: order._id.toString(),
+      createdAt: order.createdAt ? order.createdAt.toISOString() : null
+    }));
   },
 
   order: async ({ id }, context) => {
@@ -32,14 +39,24 @@ const rootResolver = {
       throw new Error('No autorizado');
     }
     
-    return order;
+    return {
+      ...order._doc,
+      id: order._id.toString(),
+      createdAt: order.createdAt ? order.createdAt.toISOString() : null
+    };
   },
 
   myOrders: async (args, context) => {
     if (!context.user) throw new Error('No autenticado');
-    return await Order.find({ user: context.user.id })
+    const orders = await Order.find({ user: context.user.id })
       .populate('user', 'username')
       .sort({ createdAt: -1 });
+    
+    return orders.map(order => ({
+      ...order._doc,
+      id: order._id.toString(),
+      createdAt: order.createdAt ? order.createdAt.toISOString() : null
+    }));
   },
 
   // Usuarios
