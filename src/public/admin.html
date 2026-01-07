@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+      color: #333;
+    }
+
+    .header {
+      max-width: 1400px;
+      margin: 0 auto 2rem;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      color: white;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      margin-bottom: 0.5rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-button {
+      padding: 1rem 2rem;
+      border: none;
+      background: white;
+      cursor: pointer;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      color: #667eea;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tab-button.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .tab-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    h3 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      color: #667eea;
+    }
+
+    button {
+      padding: 0.7rem 1.3rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #fa709a, #fee140);
+      color: #333;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      color: white;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+    }
+
+    .filter-section {
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+    }
+
+    .filter-section label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .filter-section select {
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      border: 2px solid #e0e0e0;
+      font-size: 1rem;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .filter-section select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 1.2rem;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .data-table th {
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      font-weight: 700;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.9rem;
+    }
+
+    .data-table tr:hover td {
+      background: #f8f9fa;
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+
+    .status-pending {
+      background: linear-gradient(135deg, #fa709a, #fee140);
+      color: #333;
+    }
+
+    .status-completed {
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      color: white;
+    }
+
+    .role-badge {
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .role-admin {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+    }
+
+    .role-user {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: white;
+    }
+
+    .order-details {
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .data-table {
+        font-size: 0.85rem;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 0.8rem 0.5rem;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      h2 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="header">
+    <h2>⚙️ Panel de Administración</h2>
+  </div>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-button active" onclick="showTab('users')">👥 Usuarios</button>
+      <button class="tab-button" onclick="showTab('orders')">📦 Pedidos</button>
+    </div>
+
+    <!-- TAB: Usuarios -->
+    <div id="users-tab" class="tab-content active">
+      <h3>👥 Gestión de Usuarios</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Fecha de Registro</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="users-list"></tbody>
+      </table>
+    </div>
+
+    <!-- TAB: Pedidos -->
+    <div id="orders-tab" class="tab-content">
+      <h3>📦 Gestión de Pedidos</h3>
+      
+      <div class="filter-section">
+        <label>🔍 Filtrar por estado:</label>
+        <select id="status-filter" onchange="loadOrders()">
+          <option value="">Todos</option>
+          <option value="pending">En curso</option>
+          <option value="completed">Completado</option>
+        </select>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="orders-list"></tbody>
+      </table>
+    </div>
+
+    <button class="btn-primary" onclick="goBack()" style="margin-top: 2rem;">← Volver al Inicio</button>
+  </div>
+
+  <script>
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      alert('Debes iniciar sesión primero.');
+      window.location.href = '/';
+    }
+
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.role !== 'admin') {
+      alert('⛔ Acceso denegado: solo administradores');
+      window.location.href = '/';
+    }
+
+    function showTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+      
+      document.getElementById(tab + '-tab').classList.add('active');
+      event.target.classList.add('active');
+
+      if (tab === 'users') loadUsers();
+      if (tab === 'orders') loadOrders();
+    }
+
+    // ========== USUARIOS ==========
+    async function loadUsers() {
+      try {
+        const query = `
+          query {
+            users {
+              id
+              username
+              role
+              createdAt
+            }
+          }
+        `;
+
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ query })
+        });
+
+        const result = await res.json();
+        if (result.errors) {
+          console.error(result.errors);
+          return;
+        }
+
+        renderUsers(result.data.users);
+      } catch (err) {
+        console.error(err);
+        alert('Error al cargar usuarios');
+      }
+    }
+
+    function renderUsers(users) {
+      const tbody = document.getElementById('users-list');
+      tbody.innerHTML = '';
+
+      users.forEach(user => {
+        const tr = document.createElement('tr');
+        const date = user.createdAt ? new Date(user.createdAt).toLocaleDateString('es-ES') : 'N/A';
+        const roleClass = user.role === 'admin' ? 'role-admin' : 'role-user';
+        
+        tr.innerHTML = `
+          <td><strong>${user.username}</strong></td>
+          <td><span class="role-badge ${roleClass}">${user.role === 'admin' ? '👑 Admin' : '👤 User'}</span></td>
+          <td>📅 ${date}</td>
+          <td class="actions">
+            <button class="btn-warning" onclick="toggleRole('${user.id}', '${user.role}')">
+              🔄 Cambiar a ${user.role === 'admin' ? 'User' : 'Admin'}
+            </button>
+            <button class="btn-danger" onclick="deleteUser('${user.id}', '${user.username}')">🗑️ Eliminar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function toggleRole(userId, currentRole) {
+      const newRole = currentRole === 'admin' ? 'user' : 'admin';
+      
+      if (!confirm(`¿Cambiar rol a ${newRole}?`)) return;
+
+      try {
+        const mutation = `
+          mutation UpdateUserRole($id: ID!, $role: String!) {
+            updateUserRole(id: $id, role: $role) {
+              id
+              role
+            }
+          }
+        `;
+
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            query: mutation,
+            variables: { id: userId, role: newRole }
+          })
+        });
+
+        const result = await res.json();
+        if (result.errors) {
+          alert('❌ Error: ' + result.errors[0].message);
+          return;
+        }
+
+        alert('✅ Rol actualizado correctamente');
+        loadUsers();
+      } catch (err) {
+        console.error(err);
+        alert('❌ Error al cambiar rol');
+      }
+    }
+
+    async function deleteUser(userId, username) {
+      if (!confirm(`¿Eliminar usuario ${username}?`)) return;
+
+      try {
+        const mutation = `
+          mutation DeleteUser($id: ID!) {
+            deleteUser(id: $id) {
+              success
+              message
+            }
+          }
+        `;
+
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            query: mutation,
+            variables: { id: userId }
+          })
+        });
+
+        const result = await res.json();
+        if (result.errors) {
+          alert('❌ Error: ' + result.errors[0].message);
+          return;
+        }
+
+        alert('✅ Usuario eliminado correctamente');
+        loadUsers();
+      } catch (err) {
+        console.error(err);
+        alert('❌ Error al eliminar usuario');
+      }
+    }
+
+    // ========== PEDIDOS ==========
+    async function loadOrders() {
+      try {
+        const query = `
+          query {
+            orders {
+              id
+              user {
+                username
+              }
+              total
+              status
+              createdAt
+              products {
+                name
+                quantity
+                price
+              }
+            }
+          }
+        `;
+
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ query })
+        });
+
+        const result = await res.json();
+        if (result.errors) {
+          console.error(result.errors);
+          return;
+        }
+
+        let orders = result.data.orders;
+
+        const statusFilter = document.getElementById('status-filter').value;
+        if (statusFilter) {
+          orders = orders.filter(o => o.status === statusFilter);
+        }
+
+        renderOrders(orders);
+      } catch (err) {
+        console.error(err);
+        alert('Error al cargar pedidos');
+      }
+    }
+
+    function renderOrders(orders) {
+      const tbody = document.getElementById('orders-list');
+      tbody.innerHTML = '';
+
+      orders.forEach(order => {
+        const tr = document.createElement('tr');
+        const date = new Date(order.createdAt).toLocaleString('es-ES');
+        const statusClass = order.status === 'completed' ? 'status-completed' : 'status-pending';
+        const statusText = order.status === 'completed' ? '✓ Completado' : '⏳ En Curso';
+
+        let productsHTML = '<div class="order-details">';
+        order.products.forEach(p => {
+          productsHTML += `<strong>${p.name}</strong> (x${p.quantity}) - ${(p.price * p.quantity).toFixed(2)}€<br>`;
+        });
+        productsHTML += '</div>';
+
+        tr.innerHTML = `
+          <td><strong>#${order.id.slice(-8).toUpperCase()}</strong></td>
+          <td>👤 ${order.user.username}</td>
+          <td><strong>${order.total.toFixed(2)} €</strong></td>
+          <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+          <td>📅 ${date}</td>
+          <td class="actions">
+            ${order.status === 'pending' ? `
+              <button class="btn-success" onclick="markAsCompleted('${order.id}')">✓ Marcar Completado</button>
+            ` : `
+              <button class="btn-warning" onclick="markAsPending('${order.id}')">⏳ Marcar En Curso</button>
+            `}
+          </td>
+        `;
+        
+        const detailsTr = document.createElement('tr');
+        detailsTr.innerHTML = `<td colspan="6">${productsHTML}</td>`;
+        
+        tbody.appendChild(tr);
+        tbody.appendChild(detailsTr);
+      });
+    }
+
+    async function updateOrderStatus(orderId, status) {
+      try {
+        const mutation = `
+          mutation UpdateOrderStatus($id: ID!, $status: String!) {
+            updateOrderStatus(id: $id, status: $status) {
+              id
+              status
+            }
+          }
+        `;
+
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            query: mutation,
+            variables: { id: orderId, status }
+          })
+        });
+
+        const result = await res.json();
+        if (result.errors) {
+          alert('❌ Error: ' + result.errors[0].message);
+          return;
+        }
+
+        alert('✅ Estado actualizado correctamente');
+        loadOrders();
+      } catch (err) {
+        console.error(err);
+        alert('❌ Error al actualizar estado');
+      }
+    }
+
+    function markAsCompleted(orderId) {
+      updateOrderStatus(orderId, 'completed');
+    }
+
+    function markAsPending(orderId) {
+      updateOrderStatus(orderId, 'pending');
+    }
+
+    function goBack() {
+      window.location.href = '/';
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>
