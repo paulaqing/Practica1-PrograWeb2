@@ -29,7 +29,7 @@
                 <p class="description">{product.description}</p>
             {/if}
             <div class="card-meta">
-                <span class="price">${Number(product.price).toFixed(2)}</span>
+                <span class="price">{Number(product.price).toFixed(2)} €</span>
                 <div class="badges">
                     <span class="badge {product.stock > 0 ? 'badge-active' : 'badge-inactive'}">
                         {product.stock > 0 ? 'Activo' : 'Inactivo'}

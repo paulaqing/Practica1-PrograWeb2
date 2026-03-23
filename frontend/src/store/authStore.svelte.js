@@ -1,5 +1,5 @@
 export function createAuthStore() {
-    let token = $state(sessionStorage.getItem('token') || null);
+    let token = $state(localStorage.getItem('token') || null);
     let user = $state(null);
 
     // Initialize user if token exists (basic decode or fetch profile)
@@ -9,7 +9,7 @@ export function createAuthStore() {
             user = { id: payload.id, username: payload.username, role: payload.role };
         } catch (e) {
             token = null;
-            sessionStorage.removeItem('token');
+            localStorage.removeItem('token');
         }
     }
 
@@ -19,7 +19,7 @@ export function createAuthStore() {
         get isAuthenticated() { return !!token; },
         login: (newToken, userData) => {
             token = newToken;
-            sessionStorage.setItem('token', newToken);
+            localStorage.setItem('token', newToken);
             
             // Siempre decodificamos el token para extraer el rol y el ID reales
             try {
@@ -32,7 +32,7 @@ export function createAuthStore() {
         logout: () => {
             token = null;
             user = null;
-            sessionStorage.removeItem('token');
+            localStorage.removeItem('token');
         }
     };
 }

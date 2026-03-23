@@ -1,10 +1,12 @@
 import { cartService } from '../services/cart.js';
 import { authState } from './authStore.svelte.js';
+import { toastState } from './toastStore.svelte.js';
 
 export const cartState = $state({
     items: [],
     total: 0,
     loading: false,
+    loaded: false,
     error: null,
 
     async loadCart() {
@@ -39,7 +41,7 @@ export const cartState = $state({
             await this.loadCart(); // recargar para tener subtotales actualizados
         } catch (err) {
             this.error = err.message || 'Error al añadir al carrito';
-            alert(this.error);
+            toastState.add(this.error, 'error');
         } finally {
             this.loading = false;
         }
@@ -53,7 +55,7 @@ export const cartState = $state({
             await this.loadCart();
         } catch (err) {
             this.error = err.message || 'Error al actualizar el carrito';
-            alert(this.error);
+            toastState.add(this.error, 'error');
         } finally {
             this.loading = false;
         }
@@ -67,7 +69,7 @@ export const cartState = $state({
             await this.loadCart();
         } catch (err) {
             this.error = err.message || 'Error al eliminar del carrito';
-            alert(this.error);
+            toastState.add(this.error, 'error');
         } finally {
             this.loading = false;
         }
@@ -83,7 +85,7 @@ export const cartState = $state({
             this.loaded = false; // Reset loaded state after clearing
         } catch (err) {
             this.error = err.message || 'Error al vaciar el carrito';
-            alert(this.error);
+            toastState.add(this.error, 'error');
         } finally {
             this.loading = false;
         }

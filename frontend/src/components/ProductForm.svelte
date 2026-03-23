@@ -1,4 +1,5 @@
 <script>
+    import { toastState } from "../store/toastStore.svelte.js";
     let { product = null, onSave, onCancel } = $props();
 
     let formData = $state({
@@ -13,10 +14,25 @@
 
     async function handleSubmit(e) {
         e.preventDefault();
+        
+        // Custom validations
+        if (!formData.name || formData.name.trim() === "") {
+            toastState.add("El nombre del producto no puede estar vacío", "error");
+            return;
+        }
+        if (formData.price < 0) {
+            toastState.add("El precio no puede ser negativo", "error");
+            return;
+        }
+        if (formData.stock < 0) {
+            toastState.add("El stock no puede ser negativo", "error");
+            return;
+        }
+        
         loading = true;
         try {
             const submitData = new FormData();
-            submitData.append("name", formData.name);
+            submitData.append("name", formData.name.trim());
             submitData.append("description", formData.description);
             submitData.append("price", formData.price);
             submitData.append("stock", formData.stock);
@@ -53,7 +69,7 @@
 
             <div class="row">
                 <div class="input-group">
-                    <label for="price">Precio ($)</label>
+                    <label for="price">Precio (€)</label>
                     <input
                         id="price"
                         type="number"

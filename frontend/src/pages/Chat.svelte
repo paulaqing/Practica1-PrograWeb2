@@ -2,6 +2,7 @@
     import { onMount, onDestroy } from "svelte";
     import { io } from "socket.io-client";
     import { authState } from "../store/authStore.svelte.js";
+    import { toastState } from '../store/toastStore.svelte.js';
     import { router } from "../store/routerStore.svelte.js";
 
     let socket = null;
@@ -14,8 +15,8 @@
     let messagesContainer;
 
     onMount(() => {
-        if (!authState.isAuthenticated) {
-            alert("Debes iniciar sesión para usar el chat");
+        if (!authState.isAuthenticated || !authState.user) {
+            toastState.add("Debes iniciar sesión para usar el chat", "error");
             router.navigate("/");
             return;
         }

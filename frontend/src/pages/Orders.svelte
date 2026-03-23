@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { ordersService } from '../services/orders.js';
     import { authState } from '../store/authStore.svelte.js';
+    import { toastState } from '../store/toastStore.svelte.js';
     import { router } from '../store/routerStore.svelte.js';
 
     let orders = $state([]);
@@ -39,8 +40,9 @@
             await ordersService.updateStatus(orderId, newStatus);
             // actualizar UI
             orders = orders.map(o => o._id === orderId ? { ...o, status: newStatus } : o);
+            toastState.add("Estado actualizado", "success");
         } catch (err) {
-            alert(err.message || 'Error al actualizar el estado');
+            toastState.add(err.message || 'Error al actualizar el estado', 'error');
         } finally {
             updatingId = null;
         }
@@ -105,7 +107,7 @@
                                 <li>
                                     <span class="qty">{item.quantity}x</span> 
                                     {item.name} 
-                                    <span class="item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                                    <span class="item-price">{(item.price * item.quantity).toFixed(2)} €</span>
                                 </li>
                             {/each}
                         </ul>
@@ -113,7 +115,7 @@
 
                     <div class="order-footer">
                         <div class="total">
-                            Total: <span>${order.total.toFixed(2)}</span>
+                            Total: <span>{order.total.toFixed(2)} €</span>
                         </div>
                         
                         {#if authState.user?.role === 'admin'}

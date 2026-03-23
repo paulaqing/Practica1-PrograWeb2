@@ -33,6 +33,8 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+// Servir estáticos también en /api para que funcionen las rutas construidas en el frontend (/api/uploads/...)
+app.use('/api', express.static(path.join(__dirname, 'public')));
 
 // ====== Conexión a MongoDB ======
 mongoose.connect(MONGO_URI)

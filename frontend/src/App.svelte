@@ -11,6 +11,7 @@
   import Cart from "./pages/Cart.svelte";
   import Orders from "./pages/Orders.svelte";
   import AdminUsers from "./pages/AdminUsers.svelte";
+  import Toast from "./components/Toast.svelte";
 
   // Route protection
   $effect(() => {
@@ -26,6 +27,8 @@
       router.navigate("/login");
     } else if (!isAuth && path !== "/login") {
       router.navigate("/login");
+    } else if (isAuth && path.startsWith("/admin") && authState.user?.role !== "admin") {
+      router.navigate("/products");
     }
   });
 </script>
@@ -62,3 +65,5 @@
     </div>
   {/if}
 </main>
+
+<Toast />

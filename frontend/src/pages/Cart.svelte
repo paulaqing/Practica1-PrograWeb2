@@ -2,6 +2,7 @@
     import { cartState } from '../store/cartStore.svelte.js';
     import { router } from '../store/routerStore.svelte.js';
     import { ordersService } from '../services/orders.js';
+    import { toastState } from '../store/toastStore.svelte.js';
 
     let checkingOut = $state(false);
 
@@ -28,10 +29,10 @@
         try {
             await ordersService.createOrder(items);
             await cartState.clear();
-            alert("¡Pedido completado con éxito!");
+            toastState.add("¡Pedido completado con éxito!", "success");
             router.navigate('/orders');
         } catch (err) {
-            alert(err.message || 'Error al procesar la compra');
+            toastState.add(err.message || 'Error al procesar la compra', 'error');
         } finally {
             checkingOut = false;
         }
@@ -80,7 +81,7 @@
                         </div>
                         <div class="item-details">
                             <h3>{item.product.name}</h3>
-                            <p class="price">${item.product.price.toFixed(2)}</p>
+                            <p class="price">{item.product.price.toFixed(2)} €</p>
                         </div>
                         <div class="item-actions">
                             <div class="qty-controls">
@@ -108,7 +109,7 @@
                             </button>
                         </div>
                         <div class="item-subtotal">
-                            ${(item.product.price * item.quantity).toFixed(2)}
+                            {(item.product.price * item.quantity).toFixed(2)} €
                         </div>
                     </div>
                 {/each}
@@ -118,12 +119,12 @@
                 <h3>Resumen de Compra</h3>
                 <div class="summary-row">
                     <span>Productos ({cartState.totalItems})</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>{total.toFixed(2)} €</span>
                 </div>
                 <!-- Aquí podrías añadir envío o impuestos después -->
                 <div class="summary-total">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>{total.toFixed(2)} €</span>
                 </div>
                 <button 
                     class="btn btn-primary btn-checkout" 

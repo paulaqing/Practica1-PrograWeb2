@@ -16,6 +16,10 @@
 
   let isLightMode = $state(localStorage.getItem('theme') === 'light');
 
+  // Uso de $derived() para calcular valores derivados basados en el estado
+  let userName = $derived(authState.user?.username || 'Invitado');
+  let cartCount = $derived(cartState.totalItems);
+
   $effect(() => {
     if (isLightMode) {
       document.documentElement.setAttribute("data-theme", "light");
@@ -32,7 +36,7 @@
 </script>
 
 <nav class="navbar">
-  <div class="brand" onclick={(e) => nav(e, "/")}>🛍️ Portal Productos</div>
+  <div class="brand" onclick={(e) => nav(e, "/")}>☕ Cafetería a Domicilio</div>
 
   {#if authState.isAuthenticated}
     <div class="nav-links">
@@ -81,11 +85,12 @@
           onclick={(e) => nav(e, "/cart")}
         >
           🛒 Carrito
-          {#if cartState.totalItems > 0}
-            <span class="cart-badge">{cartState.totalItems}</span>
+          {#if cartCount > 0}
+            <span class="cart-badge">{cartCount}</span>
           {/if}
         </a>
       {/if}
+      <span class="user-greeting">Hola, <strong>{userName}</strong></span>
       <button class="theme-toggle" onclick={toggleTheme} aria-label="Cambiar tema">
           {isLightMode ? '🌙' : '☀️'}
       </button>
@@ -142,6 +147,12 @@
     transition: color 0.3s ease;
     padding: 0.5rem 1rem;
     border-radius: 8px;
+  }
+
+  .user-greeting {
+    color: var(--text-color);
+    font-size: 0.95rem;
+    margin-right: 0.5rem;
   }
 
   .nav-links a:hover {

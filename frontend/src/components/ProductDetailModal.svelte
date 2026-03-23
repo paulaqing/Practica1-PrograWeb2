@@ -22,7 +22,7 @@
             
             <div class="detail-info">
                 <h2>{product.name}</h2>
-                <p class="detail-price">${Number(product.price).toFixed(2)}</p>
+                <p class="detail-price">{Number(product.price).toFixed(2)} €</p>
                 <div class="badges">
                     <span class="badge {product.stock > 0 ? 'badge-active' : 'badge-inactive'}">
                         {product.stock > 0 ? '✅ Activo' : '❌ Inactivo'}

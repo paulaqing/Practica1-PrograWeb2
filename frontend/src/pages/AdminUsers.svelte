@@ -3,11 +3,14 @@
     import { api } from '../services/api.js';
     import { authState } from '../store/authStore.svelte.js';
     import { router } from '../store/routerStore.svelte.js';
+    import { toastState } from '../store/toastStore.svelte.js';
 
     let users = $state([]);
     let loading = $state(true);
     let error = $state(null);
     let actingOn = $state(null);
+    let isCreating = $state(false);
+    let newUser = $state({ username: '', password: '' });
 
     onMount(async () => {
         if (!authState.isAuthenticated || authState.user?.role !== 'admin') {
@@ -61,8 +64,9 @@
             
             // actualizar en UI
             users = users.map(u => u.id === userId ? { ...u, role: newRole } : u);
+            toastState.add("Rol actualizado", "success");
         } catch (err) {
-            alert(err.message || 'Error al cambiar rol');
+            toastState.add(err.message || 'Error al cambiar rol', 'error');
         } finally {
             actingOn = null;
         }
@@ -88,10 +92,29 @@
             
             // quitar de UI
             users = users.filter(u => u.id !== userId);
+            toastState.add("Usuario eliminado", "success");
         } catch (err) {
-            alert(err.message || 'Error al eliminar usuario');
+            toastState.add(err.message || 'Error al eliminar usuario', 'error');
         } finally {
             actingOn = null;
+        }
+    }
+
+    async function handleCreateUser(e) {
+        e.preventDefault();
+        if (!newUser.username || !newUser.password) return;
+        isCreating = true;
+        error = null;
+        try {
+            await api.post('/auth/register', newUser);
+            // reset form
+            newUser = { username: '', password: '' };
+            toastState.add('Usuario creado con éxito', 'success');
+            await loadUsers();
+        } catch (err) {
+            error = err.message || 'Error al crear usuario';
+        } finally {
+            isCreating = false;
         }
     }
 
@@ -112,6 +135,17 @@
     {#if error}
         <div class="error-banner">{error}</div>
     {/if}
+
+    <div class="glass-panel create-user-form">
+        <h3>Añadir Nuevo Usuario</h3>
+        <form onsubmit={handleCreateUser}>
+            <input type="text" bind:value={newUser.username} placeholder="Nombre de usuario" required disabled={isCreating} />
+            <input type="password" bind:value={newUser.password} placeholder="Contraseña" required disabled={isCreating} />
+            <button type="submit" class="btn btn-primary" disabled={isCreating}>
+                {isCreating ? 'Creando...' : 'Crear Usuario'}
+            </button>
+        </form>
+    </div>
 
     {#if loading && users.length === 0}
         <div class="loading-state">Cargando usuarios...</div>
@@ -189,6 +223,30 @@
     .header h2 {
         color: var(--primary-color);
         font-size: 2rem;
+    }
+
+    .create-user-form {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+    }
+    .create-user-form h3 {
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+    .create-user-form form {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .create-user-form input {
+        flex: 1;
+        min-width: 200px;
+        padding: 0.6rem;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        background: rgba(255,255,255,0.05);
+        color: var(--text-color);
     }
 
     .table-container {
