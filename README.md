@@ -58,6 +58,59 @@
 
 ---
 
+## 🎓 Cumplimiento de la Práctica (Svelte 5)
+
+Esta aplicación cumple estrictamente con la rúbrica, implementando un frontend completo interactivo utilizando las APIs y Svelte 5:
+
+### 🟢 Requisitos Mínimos (5 Puntos)
+- **Estructura:** Creado con Vite + Svelte 5, estructurado modularmente en `components/`, `pages/`, `store/` y `services/`.
+- **Autenticación (JWT):** Gestión de login en `Login.svelte`. El Router (`App.svelte`) está protegido y esconde rutas y vistas privadas si no hay token de sesión válido.
+- **Consumo de API:** CRUD de productos vía fetch. Vistas del catálogo, componente detallado `ProductDetailModal`, form de creación/edición en `ProductForm` y borrados controlados con listado de estado activo/inactivo de stock.
+- **Navegación (SPA):** Enrutador gestionado artesanalmente para lograr SPA pura. Múltiples pantallas independientes (Login, Catálogo, Admin Usuarios, Carritos, Pedidos, etc.) y resaltado claro en el `.navbar`.
+- **Estilos y UX:** Interfaz UI/UX cuidada. Custom properties CSS, animaciones limpias de carga y borrado, *Responsive Design* adaptativo para móviles, uso de Glassmorphism intuitivo de navegación y soporte Multi-color Dark/Light Theme global.
+
+### 🟢 Uso de funcionalidades de Svelte 5 (+3 Puntos)
+Toda la API basada en la reactividad fue renovada exclusivamente a las **nuevas Runas de Svelte 5**:
+- **`$state()`:** Empleado intensivamente como pilar fundamental de variables reactivas locales en todos los componentes para las credenciales, estados de input de los formularios (`Products`, `AdminUsers`), objetos dinámicos de red (`loading`, `error`, arrays del DOM listos para render).
+- **`$derived()`:** Manejo limpio de valores con derivación reactiva que evitan redibujos no deseados. Utilizado majestuosamente para:
+  - Multi-Filtros de `Products.svelte` (Search, Precio Mínimo/Máximo), la computación de sus rangos para la paginación local y la división dinámica de hojas de página (`paginatedProducts`).
+  - Cabeceras dinámicas (`Navbar.svelte` contando los totales del carrito para la placa flotante y parseo de nombre del usuario).
+- **`$effect()`:** Vigilantes de side-effects controlados, por ejemplo en:
+  - `Products.svelte`: Efectos en cadena para recargar de cero las listas REST de inventario solo en base a si el privilegio del observador (`Rol`) muta sin recargar toda la ventana, o forzar la recarga de las páginas (`currentPage = 1`) para evitar bug visual en la paginación de los filtros reactivos derivados.
+  - `App.svelte`: Verificación viva de interceptores de sesión/rutas.
+- **`$props()` y Callbacks:** La API antigua se reemplaza, obteniendo todo parámetro con `let { object, prop, onSave, onCancel, onClick } = $props()`. Invocación pura JS hacia el padre evitando antiguos _createEventDispatcher_, con control puro (`ProductForm`, `ProductCard`, `Toast`).
+
+### 🟢 Funcionalidades Avanzadas (+2 Puntos)
+Las ampliaciones de complejidad para máximos resultados implementadas fueron:
+1. **Gestiones de Roles Centralizadas:** Vista top-level protegida `/admin/users` lista a todos consumiendo recursos solo aptos para tokens administradores, capacitando el cambio de roles, y adiciones en caliente de altas en el listado junto al backend. Limitación visual activa en los items del frontal si no eres administrador.
+2. **Ciclo de Persitencia de Sesión:** Hydration en Svelte sobre el sistema nativo del `localStorage` desde nuestro contenedor reusado en el store central `authStore.svelte.js`. Se borra y limpia reactividad automáticamente en Logout devolviendo a portada.
+3. **Escalado de Filtros y Búsqueda Frontend:** Agrupamiento de 3 métodos (Keyword search, Bottom limits, Y Top Limits) unificándose desde un campo para computar reactividad en matriz de $derived sobre el paginador de productos garantizando eficacia e interfáces rápidas.
+4. **Gestor de Formularios Exigente:** Los forms tienen un seguro JS deteniendo peticiones malintencionadas al backend (ej. precio y stock negativos), bloquean al click para evitar repeticiones HTTP redundantes limitando submits (`disabled={loading}`), resuelven visualmente spinners en los `<button>` y emiten las correspondientes trazas.
+5. **Calidad de Interfaz Avanzada UX/UI Global:**
+   - Feedback de red cargando ("Loadings circulares" animando esperas HTTP REST).
+   - Control de Errores controlados de manera global, interceptando códigos HTTP erróneos directamente de `fetch` (`api.js`) despachando los mensajes y las descripciones que levantan mediante un **Toast Store** global construido con diseños emergentes (verde, amarillo y rojo) para apartar el anticuado uso de `alert()` o roturas inmanejadas.
+   - Acciones seguras `window.confirm()` a prueba de roturas y confirmaciones de eliminaciones graves.
+
+---
+
+## 🔌 API Backend Utilizada
+
+El portal se sirve nativamente consumiendo los recursos bajo Node.js del backend que dictamina la práctica.
+
+#### Endpoints Principales y Roles
+* **Gestión Autonómica de Identidad:**
+  - POST `/auth/register` (Libre): Altas solo para usuario perfiles `user`.
+  - POST `/auth/login` (Libre): Emisión de token JWT.
+* **Recurso: Productos:**
+  - GET `/api/products` (Autenticado): Solicita recursos globales para vistas públicas o catálogo. 
+  - DELETE/POST/PUT `/api/products/:id` (**Rol ADMIN** exclusivo): Tareas de listado restrictivas o creaciones que conllevan uso de ficheros imagen procesadas por *multer*.
+* **Recurso: Roles y Usuarios:**
+  - GET, DELETE, PUT roles `/api/users/:id` (**Rol ADMIN** exclusivo): Gestiones ejecutadas unícamente desde el panel Admin listando a todos los consumidores registrados.
+* **Recurso: Pedidos de Transacción:**
+  - POST/GET `/api/orders` (Rol User y Admin): Gestiones de peticiones logísticas que capturan un snapshot del producto en JSON según un total y en un array en el sub-schema `user.orders`.
+
+---
+
 ## 🚀 Tecnologías Utilizadas
 
 ### Backend
