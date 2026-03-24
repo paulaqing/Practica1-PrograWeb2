@@ -105,4 +105,4 @@ La arquitectura se interconecta consumiendo nativamente la red de NodeJS designa
    npm run dev
    ```
 
-4. Navegador abrirá automáticamente sobre la ruta provista (Habitualmente `http://localhost:5173`).
+4. Navegador abrirá automáticamente sobre la ruta provista (`http://localhost:5173`).
